@@ -54,7 +54,11 @@ public class Sources {
     }
     
     public Source getSourceById ( Integer id ) {
-        return sources.get( id ) ;
+        for ( Source s: sources ) {
+            if ( s.getFileId().equals(id) )
+                return s ;
+        }  
+        return new Source("NULL") ;
     }
 
     public ArrayList<Source> getSources() {

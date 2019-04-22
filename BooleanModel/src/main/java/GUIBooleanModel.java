@@ -37,7 +37,7 @@ public class GUIBooleanModel {
         
         lemmaStorage.printStorage() ;
         
-        BooleanQueryParser parser = new BooleanQueryParser( lemmaStorage ) ;
+        BooleanQueryParser parser = new BooleanQueryParser( lemmaStorage, src.getSources().size() ) ;
         
         JFrame frame = new JFrame("Boolean Model") ;
  
@@ -57,20 +57,25 @@ public class GUIBooleanModel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 TreeSet<Integer> res = new TreeSet<>() ;
-                try {
+                long start = System.nanoTime();  
+                try {  
                     res = parser.parse(textfield.getText());
                 } catch (Exception ex) {
                     Logger.getLogger(GUIBooleanModel.class.getName()).log(Level.SEVERE, null, ex);
                 }
-        
-                String output = "Query results: " ;
+                long elapsedTime = System.nanoTime()- start ;
+                String output = ( "Time elapsed: " + elapsedTime + " ns\n" ) ;
+                output += "Query results: \n" ;
                 
                 if ( res.isEmpty() )
-                    output += "Not found." ;
+                    output += "Not found.\n" ;
                 
-                for ( Integer i: res ) 
-                    output += ( "\n"+"ex"+i+".txt ") ;
-                
+                System.out.println(res) ;
+                for ( Integer i: res ) {
+                    output += ( "\n"+"ex"+i+".txt :\n      ") ;
+                    for ( String term : parser.getTerms() )
+                        output += src.getSourceById(i).findWord( term ) ;
+                }
                 result.setText(output) ;
             }
 

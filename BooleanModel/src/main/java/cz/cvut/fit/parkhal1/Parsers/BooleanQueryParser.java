@@ -8,9 +8,11 @@ package cz.cvut.fit.parkhal1.Parsers;
 import cz.cvut.fit.parkhal1.Data_Structure.LemmaStorage;
 import cz.cvut.fit.parkhal1.Lemmatizer_Filter.LemmatizerAndFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -20,22 +22,35 @@ public class BooleanQueryParser {
     
     LemmatizerAndFilter slem ;
     ArrayList<String> query ;
-    TreeSet<Integer> res ;
     LemmaStorage lemmaStorage ;
+    ArrayList<String> terms ;
+    ArrayList<Integer> docIds ;
+    ArrayList<String> terminals = new ArrayList<>( Arrays.asList("OR", "AND", "NOT", "(", ")")) ;
     
-    public BooleanQueryParser ( LemmaStorage lemmaStorage ) {
+    public BooleanQueryParser ( LemmaStorage lemmaStorage, Integer n ) {
         this.slem = new LemmatizerAndFilter() ;
         this.lemmaStorage = lemmaStorage ;
+        this.terms = new ArrayList<>() ;
+        this.docIds = new ArrayList<>() ;
+        IntStream.range( 1, n + 1 ).forEach(val -> docIds.add(val));
     }
     
     public ArrayList<String> tokenize ( String input ) {
         ArrayList<String> tokens = new ArrayList<>() ;
         StringTokenizer st = new StringTokenizer( input ) ;
+        this.terms.clear() ;
         
-        while ( st.hasMoreTokens() )
+        while ( st.hasMoreTokens() ) {
             tokens.add( st.nextToken() ) ;
+            if ( !terminals.contains(tokens.get( tokens.size() - 1)) )
+                terms.add(tokens.get( tokens.size() - 1)) ;
+        }
         
         return tokens ;
+    }
+
+    public ArrayList<String> getTerms() {
+        return terms;
     }
     
     public void expect ( String what ) throws Exception {
@@ -61,7 +76,26 @@ public class BooleanQueryParser {
             expect( "OR" ) ;
             TreeSet<Integer> t = T() ;
             TreeSet<Integer> e = E() ;
-            e.addAll(t) ;
+            
+            while ( true ) {
+                if ( query.size() > 1 && query.get(0).equals(")") && query.get(1).equals(")") )
+                    expectF(")") ;
+                else
+                    break ;
+            }
+            
+            if ( query.size() > 2 && query.get(0).equals(")") && query.get(1).equals("OR") ) {
+                expectF(")") ;
+                expectF("OR") ;
+                e.addAll( E() ) ;
+                e.addAll(t) ;
+            } else if ( query.size() > 2 && query.get(0).equals(")") && query.get(1).equals("AND") ) {
+                expectF(")") ;
+                expectF("AND") ;
+                e.addAll(t) ;
+                e.retainAll( T() ) ;
+            }else 
+                e.addAll(t) ;
             return e ;
         } else 
             return T() ;
@@ -73,32 +107,50 @@ public class BooleanQueryParser {
             expect( "AND" ) ;
             TreeSet<Integer> f = F() ;
             TreeSet<Integer> t = T() ;
-            t.retainAll(f) ;
+            
+            while ( true ) {
+                if ( query.size() > 1 && query.get(0).equals(")") && query.get(1).equals(")") )
+                    expectF(")") ;
+                else
+                    break ;
+            }
+            
+            if ( query.size() > 2 && query.get(0).equals(")") && query.get(1).equals("AND") ) {
+                expectF(")") ;
+                expectF("AND") ;
+                t.retainAll( T() ) ;
+                t.retainAll(f) ;
+            } else if ( query.size() > 2 && query.get(0).equals(")") && query.get(1).equals("OR") ) {
+                expectF(")") ;
+                expectF("OR") ;
+                t.retainAll(f) ;
+                t.addAll( E() ) ;
+            } else 
+                t.retainAll(f) ;
+            
             return t ;
         } else 
             return F() ;
     }
     
     public TreeSet<Integer> F () throws Exception {
-        
         if ( query.get(0).equals("(") ) {
             expectF( "(" ) ;
             TreeSet<Integer> e = E() ;
-            expectF( ")" ) ;
+            //expectF( ")" ) ;
             return e ;
         } else {
-            TreeSet<Integer> f = lemmaStorage.getLemma( query.get(0)).getDocumentIds() ;
+            TreeSet<Integer> f = lemmaStorage.getLemma( slem.lemmatizeOne(query.get(0))).getDocumentIds() ;
             query.remove(0) ;
             return f ;
         }
     }
     
     public TreeSet<Integer> parse ( String inputQuery ) throws Exception { 
-        this.res = new TreeSet<>() ;
         this.query = tokenize( inputQuery ) ;
-        
+
         if ( query.size() == 1 )
-            return lemmaStorage.getLemma( query.get(0)).getDocumentIds() ;
+            return lemmaStorage.getLemma( slem.lemmatizeOne(query.get(0))).getDocumentIds() ;
         
         return E() ;
     }

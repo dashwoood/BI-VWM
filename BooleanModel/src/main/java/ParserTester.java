@@ -29,10 +29,10 @@ public class ParserTester {
         
         lemmaStorage.printStorage() ;
         
-        BooleanQueryParser parser = new BooleanQueryParser( lemmaStorage ) ;
-        
+        BooleanQueryParser parser = new BooleanQueryParser( lemmaStorage, src.getSources().size() ) ;
+       
         try {
-            TreeSet<Integer> res = parser.parse("year AND ( will OR whatever )") ;
+            TreeSet<Integer> res = parser.parse("count OR ( new AND something AND world ) OR hello") ;
             System.out.println( res.toString() ) ;
         } catch ( Exception ex ) {
             System.out.println( ex ) ;

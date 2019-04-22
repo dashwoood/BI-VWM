@@ -72,7 +72,7 @@ public class LemmatizerAndFilter {
     
     public String lemmatizeOne(String documentText)
     {
-        ArrayList<String> lemmas = new ArrayList<>();
+        String result =  "";
 
         Annotation document = new Annotation(documentText);
 
@@ -84,10 +84,10 @@ public class LemmatizerAndFilter {
                 String curr = token.get(LemmaAnnotation.class) ;
                 
                 if ( !UselessWords.contains(curr) && Pattern.matches( "[a-zA-Z-]{3,}", curr ) )
-                    lemmas.add( curr.toLowerCase() );
+                    result = curr.toLowerCase() ;
             }
         }
-        return lemmas.get(0);
+        return result ;
     } 
     
    

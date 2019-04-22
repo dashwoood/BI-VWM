@@ -7,6 +7,7 @@ package cz.cvut.fit.parkhal1.Data_Structure;
 
 import cz.cvut.fit.parkhal1.Lemmatizer_Filter.LemmatizerAndFilter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
@@ -27,6 +28,10 @@ public class Source {
         this.filename = filename ;
         this.fileId = toInteger(filename.substring(21, filename.length()-4)) ;
     }
+
+    public Source(String filename) {
+        this.filename = filename;
+    }
     
     public void setLemmas ( TreeSet<String> lemmas ) {
         this.lemmas = new TreeSet<>(lemmas) ;
@@ -37,23 +42,36 @@ public class Source {
         LemmatizerAndFilter slem = new LemmatizerAndFilter() ;
         ArrayList<String> res = new ArrayList<>() ;
         
-        String result = "" ;
+        HashSet<String> output = new HashSet<>() ;
         
         while (st.hasMoreTokens()) {
            String tmp = st.nextToken() ;
            res.add(tmp) ;
-           if ( slem.lemmatize( tmp ).equals(slem.lemmatize( input ) )) {
+           if ( slem.lemmatizeOne( tmp ).equals(slem.lemmatizeOne( input ) ) && !slem.lemmatizeOne( tmp ).equals("") ) {
+               String result = "" ;
                result += ("..") ;
-               result += res.get(res.indexOf( tmp ) - 1) ;
-               result += (" ") ;
+               
+               if ( res.indexOf( tmp ) != 0 ) {
+                    result += res.get(res.indexOf( tmp ) - 1) ;
+                    result += (" ") ;
+               }
+               
                result += res.get(res.indexOf( tmp )) ;
                result += (" ") ;
-               result += res.get(res.indexOf( tmp ) + 1) ;
-               result += ("..") ;
+               
+               if ( st.hasMoreTokens() ) {
+                    res.add( st.nextToken()) ;
+                    result += res.get(res.indexOf( tmp ) + 1) ;
+                    result += ("..  ") ;
+               }
+               output.add(result) ;
            }
         }
+        String out = "" ;
+        for ( String s: output )
+            out += s ;
         
-        return result ;
+        return out ;
     }
 
     public String getLine ( ArrayList<ArrayList<String>> parsedQuery ) {
