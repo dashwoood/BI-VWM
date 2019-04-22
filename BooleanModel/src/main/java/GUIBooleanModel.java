@@ -8,17 +8,19 @@
  *
  * @author parkh
  */
-import cz.cvut.fit.parkhal1.dataStructure.LemmaStorage;
-import cz.cvut.fit.parkhal1.dataStructure.Source;
-import cz.cvut.fit.parkhal1.dataStructure.Sources;
-import cz.cvut.fit.parkhal1.BooleanParser.BooleanQueryParser;
-import cz.cvut.fit.parkhal1.lemmatizerAndFilter.LemmatizerAndFilter;
+import cz.cvut.fit.parkhal1.Data_Structure.LemmaStorage;
+import cz.cvut.fit.parkhal1.Data_Structure.Source;
+import cz.cvut.fit.parkhal1.Data_Structure.Sources;
+import cz.cvut.fit.parkhal1.Parsers.BooleanQueryParser;
+import cz.cvut.fit.parkhal1.Lemmatizer_Filter.LemmatizerAndFilter;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
  
 import javax.swing.*;
  
@@ -35,7 +37,7 @@ public class GUIBooleanModel {
         
         lemmaStorage.printStorage() ;
         
-        BooleanQueryParser parser = new BooleanQueryParser() ;
+        BooleanQueryParser parser = new BooleanQueryParser( lemmaStorage ) ;
         
         JFrame frame = new JFrame("Boolean Model") ;
  
@@ -54,7 +56,12 @@ public class GUIBooleanModel {
         button.addActionListener( new ActionListener() { 
             @Override
             public void actionPerformed(ActionEvent e) {
-                TreeSet<Integer> res = lemmaStorage.getQueryResult(parser.parseSimple(textfield.getText())) ;
+                TreeSet<Integer> res = new TreeSet<>() ;
+                try {
+                    res = parser.parse(textfield.getText());
+                } catch (Exception ex) {
+                    Logger.getLogger(GUIBooleanModel.class.getName()).log(Level.SEVERE, null, ex);
+                }
         
                 String output = "Query results: " ;
                 

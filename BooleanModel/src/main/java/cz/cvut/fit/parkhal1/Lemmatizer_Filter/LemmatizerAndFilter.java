@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.cvut.fit.parkhal1.lemmatizerAndFilter;
+package cz.cvut.fit.parkhal1.Lemmatizer_Filter;
 
 import java.util.List;
 import java.util.Properties;
@@ -29,12 +29,10 @@ import java.util.regex.Pattern;
 public class LemmatizerAndFilter {
     protected StanfordCoreNLP pipeline;
     
-    //spojky a predlozky 
     private final ArrayList<String> UselessWords ; 
 
     public LemmatizerAndFilter() {
-        // Create StanfordCoreNLP object properties, with POS tagging
-        // (required for lemmatization), and lemmatization
+
         UselessWords = new ArrayList<>( Arrays.asList("and","a","the","but","to","in","at","as","from","yet","so","by","on","else",
                 "no","for","nor","or","both","either","neither","although","because","if","before",
                 "after","of","with","not","'s","oh","ah","ha","then","that","these","those",
@@ -49,8 +47,6 @@ public class LemmatizerAndFilter {
         props = new Properties();
         props.put("annotators", "tokenize, ssplit, pos, lemma");
 
-        // StanfordCoreNLP loads a lot of models, so you probably
-        // only want to do this once per execution
         this.pipeline = new StanfordCoreNLP(props);
     }
 
@@ -58,26 +54,41 @@ public class LemmatizerAndFilter {
     {
         TreeSet<String> lemmas = new TreeSet<>();
 
-        // create an empty Annotation just with the given text
         Annotation document = new Annotation(documentText);
 
-        // run all Annotators on this text
         this.pipeline.annotate(document);
 
-        // Iterate over all of the sentences found
         List<CoreMap> sentences = document.get(SentencesAnnotation.class);
         for(CoreMap sentence: sentences) {
-            // Iterate over all tokens in a sentence
             for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
-                // Retrieve and add the lemma for each word into the list of lemmas
                 String curr = token.get(LemmaAnnotation.class) ;
                 
                 if ( !UselessWords.contains(curr) && Pattern.matches("[a-zA-Z-]{3,}", curr) )
                     lemmas.add( curr.toLowerCase() );
             }
         }
-
         return lemmas;
     } 
+    
+    public String lemmatizeOne(String documentText)
+    {
+        ArrayList<String> lemmas = new ArrayList<>();
+
+        Annotation document = new Annotation(documentText);
+
+        this.pipeline.annotate(document);
+
+        List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+        for(CoreMap sentence: sentences) {
+            for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
+                String curr = token.get(LemmaAnnotation.class) ;
+                
+                if ( !UselessWords.contains(curr) && Pattern.matches( "[a-zA-Z-]{3,}", curr ) )
+                    lemmas.add( curr.toLowerCase() );
+            }
+        }
+        return lemmas.get(0);
+    } 
+    
    
 }

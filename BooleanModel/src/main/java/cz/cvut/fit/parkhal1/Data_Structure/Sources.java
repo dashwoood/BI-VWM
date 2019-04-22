@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.cvut.fit.parkhal1.dataStructure;
+package cz.cvut.fit.parkhal1.Data_Structure;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

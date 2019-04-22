@@ -1,9 +1,9 @@
 
-import cz.cvut.fit.parkhal1.dataStructure.LemmaStorage;
-import cz.cvut.fit.parkhal1.dataStructure.Source;
-import cz.cvut.fit.parkhal1.dataStructure.Sources;
-import cz.cvut.fit.parkhal1.BooleanParser.BooleanQueryParser;
-import cz.cvut.fit.parkhal1.lemmatizerAndFilter.LemmatizerAndFilter;
+import cz.cvut.fit.parkhal1.Data_Structure.LemmaStorage;
+import cz.cvut.fit.parkhal1.Data_Structure.Source;
+import cz.cvut.fit.parkhal1.Data_Structure.Sources;
+import cz.cvut.fit.parkhal1.Parsers.BooleanQueryParser;
+import cz.cvut.fit.parkhal1.Lemmatizer_Filter.LemmatizerAndFilter;
 import java.io.IOException;
 import java.util.TreeSet;
 
@@ -17,7 +17,7 @@ import java.util.TreeSet;
  *
  * @author parkh
  */
-public class Main {
+public class ParserTester {
     
      public static void main(String[] args) throws IOException {
         Sources src = new Sources("src/main/resources") ;
@@ -27,10 +27,17 @@ public class Main {
         for ( Source source : src.getSources() ) 
             lemmaStorage.addLemmas( slem.lemmatize(source.getSource()), source.getFileId() ) ;
         
-        //lemmaStorage.printStorage() ;
+        lemmaStorage.printStorage() ;
         
-        BooleanQueryParser parser = new BooleanQueryParser() ;
-        parser.parse("( heard OR ( edits OR ( forgot AND edits ) ) ) ", "") ;
+        BooleanQueryParser parser = new BooleanQueryParser( lemmaStorage ) ;
+        
+        try {
+            TreeSet<Integer> res = parser.parse("year AND ( will OR whatever )") ;
+            System.out.println( res.toString() ) ;
+        } catch ( Exception ex ) {
+            System.out.println( ex ) ;
+        }
+       
         /*
         TreeSet<Integer> res = lemmaStorage.getQueryResult(parser.parseSimple("heard OR edits OR forgot")) ;
         
