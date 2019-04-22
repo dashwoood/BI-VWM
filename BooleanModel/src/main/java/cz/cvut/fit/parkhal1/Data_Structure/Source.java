@@ -22,11 +22,14 @@ public class Source {
     private String filename ;
     private Integer fileId ;
     private TreeSet<String> lemmas ;
+    private LemmatizerAndFilter slem ;
     
     Source ( String source, String filename ) {
         this.source = source ;
         this.filename = filename ;
         this.fileId = toInteger(filename.substring(21, filename.length()-4)) ;
+        this.slem = new LemmatizerAndFilter() ;
+        this.lemmas = slem.lemmatize( source ) ;
     }
 
     public Source(String filename) {
@@ -72,18 +75,6 @@ public class Source {
             out += s ;
         
         return out ;
-    }
-
-    public String getLine ( ArrayList<ArrayList<String>> parsedQuery ) {
-        String line = "" ;
-        
-        for ( ArrayList<String> list: parsedQuery ) {
-            for ( String word : list )
-                line += ( findWord( word ) ) ;
-        }
-        
-        return line ;
-        //Line with desired lemmas ...
     }
     
     public String getSource() {

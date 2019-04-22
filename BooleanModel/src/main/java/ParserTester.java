@@ -32,7 +32,7 @@ public class ParserTester {
         BooleanQueryParser parser = new BooleanQueryParser( lemmaStorage, src.getSources().size() ) ;
        
         try {
-            TreeSet<Integer> res = parser.parse("count OR ( new AND something AND world ) OR hello") ;
+            TreeSet<Integer> res = parser.parse("count OR ( new AND something AND world ) OR hello OR beee OR word") ;
             System.out.println( res.toString() ) ;
         } catch ( Exception ex ) {
             System.out.println( ex ) ;

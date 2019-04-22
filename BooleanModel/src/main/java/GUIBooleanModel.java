@@ -13,6 +13,7 @@ import cz.cvut.fit.parkhal1.Data_Structure.Source;
 import cz.cvut.fit.parkhal1.Data_Structure.Sources;
 import cz.cvut.fit.parkhal1.Parsers.BooleanQueryParser;
 import cz.cvut.fit.parkhal1.Lemmatizer_Filter.LemmatizerAndFilter;
+import cz.cvut.fit.parkhal1.Parsers.SimpleSearchParser;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -38,6 +39,7 @@ public class GUIBooleanModel {
         lemmaStorage.printStorage() ;
         
         BooleanQueryParser parser = new BooleanQueryParser( lemmaStorage, src.getSources().size() ) ;
+        SimpleSearchParser parserSimple = new SimpleSearchParser(src, src.getSources().size() ) ;
         
         JFrame frame = new JFrame("Boolean Model") ;
  
@@ -49,7 +51,7 @@ public class GUIBooleanModel {
  
         JLabel label = new JLabel("Enter boolean query: ") ;
         label.setFont(new Font("Courier", Font.BOLD, 25)) ;
-        JTextField textfield = new JTextField( "", 30 ) ;
+        JTextField textfield = new JTextField( "", 45 ) ;
  
         JButton button = new JButton() ;
         button.setText("Submit") ;
@@ -57,6 +59,18 @@ public class GUIBooleanModel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 TreeSet<Integer> res = new TreeSet<>() ;
+                TreeSet<Integer> res1 = new TreeSet<>() ;
+                
+                long startSimple = System.nanoTime();  
+                try {  
+                    res1 = parserSimple.parse(textfield.getText());
+                } catch (Exception ex) {
+                    Logger.getLogger(GUIBooleanModel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                long elapsedTimeSimple = System.nanoTime()- startSimple ;
+                
+                
+                
                 long start = System.nanoTime();  
                 try {  
                     res = parser.parse(textfield.getText());
@@ -64,13 +78,14 @@ public class GUIBooleanModel {
                     Logger.getLogger(GUIBooleanModel.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 long elapsedTime = System.nanoTime()- start ;
-                String output = ( "Time elapsed: " + elapsedTime + " ns\n" ) ;
+                String output = ( "Time elapsed using inverted index : " + elapsedTime + " ns\n" ) ;
+                output += ( "Time elapsed using sequential search : " + elapsedTimeSimple + " ns\n" ) ;
+                output += ( "Benefit : " + elapsedTimeSimple/elapsedTime + "x faster\n\n" ) ;
                 output += "Query results: \n" ;
                 
                 if ( res.isEmpty() )
                     output += "Not found.\n" ;
                 
-                System.out.println(res) ;
                 for ( Integer i: res ) {
                     output += ( "\n"+"ex"+i+".txt :\n      ") ;
                     for ( String term : parser.getTerms() )
@@ -87,7 +102,7 @@ public class GUIBooleanModel {
         panel.add( result ) ;
  
         frame.add(panel) ;
-        frame.setSize(800, 800) ;
+        frame.setSize(1000, 800) ;
         frame.setLocationRelativeTo(null) ;
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE) ;
         frame.setVisible(true) ;
