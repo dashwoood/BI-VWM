@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 // Using extern library Stanford Lemmatizer 
 public class LemmatizerAndFilter {
-    protected StanfordCoreNLP pipeline;
+    protected StanfordCoreNLP pipeline ;
     
     private final ArrayList<String> UselessWords ; 
 
@@ -43,28 +43,28 @@ public class LemmatizerAndFilter {
                 "-lsb-","some","many","rather","another","other","again","over","moreover","however","-lrb-","-rsb-","ago",
                 "along","also","into","now","one","two","which","since","say","never","ever","yes")) ;
     
-        Properties props;
-        props = new Properties();
-        props.put("annotators", "tokenize, ssplit, pos, lemma");
+        Properties props ;
+        props = new Properties() ;
+        props.put("annotators", "tokenize, ssplit, pos, lemma")  ;
 
-        this.pipeline = new StanfordCoreNLP(props);
+        this.pipeline = new StanfordCoreNLP(props) ;
     }
 
     public TreeSet<String> lemmatize(String documentText)
     {
-        TreeSet<String> lemmas = new TreeSet<>();
+        TreeSet<String> lemmas = new TreeSet<>() ;
 
-        Annotation document = new Annotation(documentText);
+        Annotation document = new Annotation(documentText) ;
 
-        this.pipeline.annotate(document);
+        this.pipeline.annotate(document) ;
 
-        List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+        List<CoreMap> sentences = document.get(SentencesAnnotation.class) ;
         for(CoreMap sentence: sentences) {
             for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
                 String curr = token.get(LemmaAnnotation.class) ;
                 
                 if ( !UselessWords.contains(curr) && Pattern.matches("[a-zA-Z-]{3,}", curr) )
-                    lemmas.add( curr.toLowerCase() );
+                    lemmas.add( curr.toLowerCase() ) ;
             }
         }
         return lemmas;
@@ -72,13 +72,13 @@ public class LemmatizerAndFilter {
     
     public String lemmatizeOne(String documentText)
     {
-        String result =  "";
+        String result = "" ;
 
-        Annotation document = new Annotation(documentText);
+        Annotation document = new Annotation(documentText) ;
 
-        this.pipeline.annotate(document);
+        this.pipeline.annotate(document) ;
 
-        List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+        List<CoreMap> sentences = document.get(SentencesAnnotation.class) ;
         for(CoreMap sentence: sentences) {
             for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
                 String curr = token.get(LemmaAnnotation.class) ;

@@ -69,6 +69,10 @@ public class Sources {
         this.sources = sources;
     }
     
+    //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+    //only for testing purposes 
+    //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+    
     public TreeSet<Integer> getQueryResult( ArrayList<ArrayList<String>> parsedQuery ) {
         TreeSet<Integer> result = new TreeSet<>() ;
                 

@@ -29,6 +29,7 @@ public class GUIBooleanModel {
  
     public static void main(String s[]) throws IOException {
         
+        /* Preprocessing */
         Sources src = new Sources("src/main/resources") ;
         LemmaStorage lemmaStorage = new LemmaStorage() ;
         LemmatizerAndFilter slem = new LemmatizerAndFilter();
@@ -38,17 +39,12 @@ public class GUIBooleanModel {
         
         lemmaStorage.printStorage() ;
         
-        BooleanQueryParser parser = new BooleanQueryParser( lemmaStorage, src.getSources().size() ) ;
-        SimpleSearchParser parserSimple = new SimpleSearchParser(src, src.getSources().size() ) ;
-        
+        /* GUI */
         JFrame frame = new JFrame("Boolean Model") ;
- 
         JPanel panel = new JPanel() ;
         panel.setLayout(new FlowLayout()) ;
-        
-        JTextArea result = new JTextArea( 20, 30 ) ;
+        JTextArea result = new JTextArea( 20, 20 ) ;
         result.setFont(new Font("Courier", Font.BOLD, 25)) ;
- 
         JLabel label = new JLabel("Enter boolean query: ") ;
         label.setFont(new Font("Courier", Font.BOLD, 25)) ;
         JTextField textfield = new JTextField( "", 45 ) ;
@@ -56,40 +52,54 @@ public class GUIBooleanModel {
         JButton button = new JButton() ;
         button.setText("Submit") ;
         button.addActionListener( new ActionListener() { 
+            
             @Override
             public void actionPerformed(ActionEvent e) {
-                TreeSet<Integer> res = new TreeSet<>() ;
-                TreeSet<Integer> res1 = new TreeSet<>() ;
+                BooleanQueryParser parser = new BooleanQueryParser( lemmaStorage, src.getSources().size() ) ;
+                SimpleSearchParser parserSimple = new SimpleSearchParser( src, src.getSources().size() ) ;
                 
+                TreeSet<Integer> res = new TreeSet<>() ;
+                String query = textfield.getText() ;
+                
+                /* Simple Search */
                 long startSimple = System.nanoTime();  
                 try {  
-                    res1 = parserSimple.parse(textfield.getText());
+                    parserSimple.parse( query ) ;
                 } catch (Exception ex) {
                     Logger.getLogger(GUIBooleanModel.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 long elapsedTimeSimple = System.nanoTime()- startSimple ;
                 
-                
-                
+                /* Inverted index */
                 long start = System.nanoTime();  
                 try {  
-                    res = parser.parse(textfield.getText());
+                    res = parser.parse( query ) ;
                 } catch (Exception ex) {
                     Logger.getLogger(GUIBooleanModel.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 long elapsedTime = System.nanoTime()- start ;
+                
                 String output = ( "Time elapsed using inverted index : " + elapsedTime + " ns\n" ) ;
                 output += ( "Time elapsed using sequential search : " + elapsedTimeSimple + " ns\n" ) ;
                 output += ( "Benefit : " + elapsedTimeSimple/elapsedTime + "x faster\n\n" ) ;
-                output += "Query results: \n" ;
+                output += "Query results: " ;
                 
                 if ( res.isEmpty() )
                     output += "Not found.\n" ;
+                else 
+                    output += ( res.size() + " document(s) found.\n" ) ;
                 
+                /* Query result */
                 for ( Integer i: res ) {
                     output += ( "\n"+"ex"+i+".txt :\n      ") ;
-                    for ( String term : parser.getTerms() )
+                    Integer newline = 35 + output.length() ;
+                    for ( String term : parser.getTerms() ) {
+                        if ( output.length() >= newline && !src.getSourceById(i).findWord( term ).isEmpty()) {
+                            output += "\n      " ;
+                            newline += 35  ;
+                        }
                         output += src.getSourceById(i).findWord( term ) ;
+                    }
                 }
                 result.setText(output) ;
             }

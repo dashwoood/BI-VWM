@@ -76,6 +76,10 @@ public class LemmaStorage {
         return new Lemma("") ;
     }
     
+    //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+    //only for testing purposes 
+    //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+    
     public TreeSet<Integer> getQueryResult( ArrayList<ArrayList<String>> parsedQuery ) {
         TreeSet<Integer> result = new TreeSet<>() ;
                 

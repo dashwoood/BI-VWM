@@ -9,7 +9,6 @@ import cz.cvut.fit.parkhal1.Data_Structure.LemmaStorage;
 import cz.cvut.fit.parkhal1.Lemmatizer_Filter.LemmatizerAndFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.stream.IntStream;
@@ -20,19 +19,19 @@ import java.util.stream.IntStream;
  */
 public class BooleanQueryParser {
     
-    LemmatizerAndFilter slem ;
-    ArrayList<String> query ;
-    LemmaStorage lemmaStorage ;
-    ArrayList<String> terms ;
-    ArrayList<Integer> docIds ;
-    ArrayList<String> terminals = new ArrayList<>( Arrays.asList("OR", "AND", "NOT", "(", ")")) ;
+    private LemmatizerAndFilter slem ;
+    private ArrayList<String> query ;
+    private LemmaStorage lemmaStorage ;
+    private ArrayList<String> terms ;
+    private TreeSet<Integer> docIds ;
+    private ArrayList<String> terminals = new ArrayList<>( Arrays.asList("OR", "AND", "NOT", "(", ")")) ;
     
     public BooleanQueryParser ( LemmaStorage lemmaStorage, Integer n ) {
         this.slem = new LemmatizerAndFilter() ;
         this.lemmaStorage = lemmaStorage ;
         this.terms = new ArrayList<>() ;
-        this.docIds = new ArrayList<>() ;
-        IntStream.range( 1, n + 1 ).forEach(val -> docIds.add(val));
+        this.docIds = new TreeSet<>() ;
+        IntStream.range( 1, n + 1 ).forEach(val -> this.docIds.add(val)) ;
     }
     
     public ArrayList<String> tokenize ( String input ) {
@@ -42,54 +41,66 @@ public class BooleanQueryParser {
         
         while ( st.hasMoreTokens() ) {
             tokens.add( st.nextToken() ) ;
-            if ( !terminals.contains(tokens.get( tokens.size() - 1)) )
-                terms.add(tokens.get( tokens.size() - 1)) ;
+            if ( !this.terminals.contains(tokens.get( tokens.size() - 1)) )
+                this.terms.add(tokens.get( tokens.size() - 1)) ;
         }
         
         return tokens ;
     }
 
     public ArrayList<String> getTerms() {
-        return terms;
+        return this.terms;
     }
     
     public void expect ( String what ) throws Exception {
   
-       if ( query.get(1).equals(what) ) {
-           query.remove(1) ;
+       if ( this.query.get(1).equals(what) ) {
+           this.query.remove(1) ;
        } else 
-           throw new Exception(query.get(1) +" "+ what ) ;
+           throw new Exception(this.query.get(1) +" "+ what ) ;
+           
+    }
+    
+    public void expectLater ( String what ) throws Exception {
+  
+       if ( this.query.get(2).equals(what) ) {
+           this.query.remove(2) ;
+       } else 
+           throw new Exception(this.query.get(2) +" "+ what ) ;
            
     }
     
     public void expectF ( String what ) throws Exception {
   
-       if ( query.get(0).equals(what) ) {
-           query.remove(0) ;
+       if ( this.query.get(0).equals(what) ) {
+           this.query.remove(0) ;
        } else 
-           throw new Exception(query.get(1) +" "+ what ) ;
+           throw new Exception(this.query.get(1) +" "+ what ) ;
            
     }
     
     public TreeSet<Integer> E () throws Exception {
-        if ( query.size() != 1 && query.get(1).equals("OR") ) {
-            expect( "OR" ) ;
+        if ( this.query.size() > 2 && ( this.query.get(1).equals("OR") || this.query.get(2).equals("OR") )) {
+            if ( this.query.get(2).equals("OR") )
+                expectLater("OR") ;
+            else 
+                expect( "OR" ) ;
             TreeSet<Integer> t = T() ;
             TreeSet<Integer> e = E() ;
             
             while ( true ) {
-                if ( query.size() > 1 && query.get(0).equals(")") && query.get(1).equals(")") )
+                if ( this.query.size() > 1 && this.query.get(0).equals(")") && this.query.get(1).equals(")") )
                     expectF(")") ;
                 else
                     break ;
             }
             
-            if ( query.size() > 2 && query.get(0).equals(")") && query.get(1).equals("OR") ) {
+            if ( this.query.size() > 2 && this.query.get(0).equals(")") && this.query.get(1).equals("OR") ) {
                 expectF(")") ;
                 expectF("OR") ;
                 e.addAll( E() ) ;
                 e.addAll(t) ;
-            } else if ( query.size() > 2 && query.get(0).equals(")") && query.get(1).equals("AND") ) {
+            } else if ( this.query.size() > 2 && this.query.get(0).equals(")") && this.query.get(1).equals("AND") ) {
                 expectF(")") ;
                 expectF("AND") ;
                 e.addAll(t) ;
@@ -103,24 +114,27 @@ public class BooleanQueryParser {
     
     public TreeSet<Integer> T () throws Exception {
         
-        if ( query.size() != 1 && query.get(1).equals("AND") ) {
-            expect( "AND" ) ;
+        if ( this.query.size() > 2 && ( this.query.get(1).equals("AND") || this.query.get(2).equals("AND") ) ) {
+            if ( this.query.get(2).equals("AND") )
+                expectLater("AND") ;
+            else 
+                expect( "AND" ) ;
             TreeSet<Integer> f = F() ;
             TreeSet<Integer> t = T() ;
             
             while ( true ) {
-                if ( query.size() > 1 && query.get(0).equals(")") && query.get(1).equals(")") )
+                if ( this.query.size() > 1 && this.query.get(0).equals(")") && this.query.get(1).equals(")") )
                     expectF(")") ;
                 else
                     break ;
             }
             
-            if ( query.size() > 2 && query.get(0).equals(")") && query.get(1).equals("AND") ) {
+            if ( this.query.size() > 2 && this.query.get(0).equals(")") && this.query.get(1).equals("AND") ) {
                 expectF(")") ;
                 expectF("AND") ;
                 t.retainAll( T() ) ;
                 t.retainAll(f) ;
-            } else if ( query.size() > 2 && query.get(0).equals(")") && query.get(1).equals("OR") ) {
+            } else if ( this.query.size() > 2 && this.query.get(0).equals(")") && this.query.get(1).equals("OR") ) {
                 expectF(")") ;
                 expectF("OR") ;
                 t.retainAll(f) ;
@@ -134,23 +148,37 @@ public class BooleanQueryParser {
     }
     
     public TreeSet<Integer> F () throws Exception {
-        if ( query.get(0).equals("(") ) {
+        if ( this.query.get(0).equals("(") ) {
             expectF( "(" ) ;
             TreeSet<Integer> e = E() ;
             //expectF( ")" ) ;
             return e ;
+        } else if ( this.query.size() > 2 && this.query.get(1).equals("(") && this.query.get(0).equals("NOT") ) {
+            expectF( "NOT" ) ;
+            expectF( "(" ) ;
+            TreeSet<Integer> e = E() ;
+            TreeSet<Integer> tmp = (TreeSet<Integer>) this.docIds.clone() ;
+            tmp.removeAll(e) ;
+            return tmp ;
+        } else if ( this.query.get(0).equals("NOT") ) {
+            expectF( "NOT" ) ;    
+            TreeSet<Integer> f = (TreeSet<Integer>) this.lemmaStorage.getLemma( this.slem.lemmatizeOne(this.query.get(0))).getDocumentIds().clone() ;
+            TreeSet<Integer> tmp = (TreeSet<Integer>) this.docIds.clone() ;
+            tmp.removeAll(f) ;
+            this.query.remove(0) ;
+            return tmp ;
         } else {
-            TreeSet<Integer> f = lemmaStorage.getLemma( slem.lemmatizeOne(query.get(0))).getDocumentIds() ;
-            query.remove(0) ;
+            TreeSet<Integer> f = (TreeSet<Integer>) this.lemmaStorage.getLemma( this.slem.lemmatizeOne(this.query.get(0))).getDocumentIds().clone() ;
+            this.query.remove(0) ;
             return f ;
         }
     }
     
     public TreeSet<Integer> parse ( String inputQuery ) throws Exception { 
         this.query = tokenize( inputQuery ) ;
-
+        
         if ( query.size() == 1 )
-            return lemmaStorage.getLemma( slem.lemmatizeOne(query.get(0))).getDocumentIds() ;
+            return (TreeSet<Integer>) this.lemmaStorage.getLemma( this.slem.lemmatizeOne(this.query.get(0))).getDocumentIds().clone() ;
         
         return E() ;
     }

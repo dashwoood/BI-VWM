@@ -71,8 +71,14 @@ public class Source {
            }
         }
         String out = "" ;
-        for ( String s: output )
+        Integer newline = 20 ;
+        for ( String s: output ) {
+            if ( out.length() >= newline ) {
+                out += "\n      " ;
+                newline += 30 ;
+            }
             out += s ;
+        }
         
         return out ;
     }
@@ -128,10 +134,6 @@ public class Source {
 
     public TreeSet<String> getLemmas() {
         return lemmas;
-    }
-    
-    
-    
-    
+    }   
     
 }

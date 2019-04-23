@@ -1,0 +1,5 @@
+New privacy settings also allow users to decide who can add them to groups. Previously any WhatsApp user could be added to a group by any other. Now you can choose to only be added automatically to groups by contacts, or by no-one at all.
+
+On 2 April the company announced a new project - Checkpoint - that allows users to send in suspicious messages in English and four Indian languages to a local media start-up Proto for verification. Users are told if the message is true, false, misleading or disputed.
+
+It was reported widely as a new fact-checking service but the company has since emphasised that it mostly aims to "study the misinformation phenomenon" and that not all users will receive a response.
