@@ -92,11 +92,11 @@ public class GUIBooleanModel {
                 /* Query result */
                 for ( Integer i: res ) {
                     output += ( "\n"+"ex"+i+".txt :\n      ") ;
-                    Integer newline = 35 + output.length() ;
+                    Integer newline = 45 + output.length() ;
                     for ( String term : parser.getTerms() ) {
                         if ( output.length() >= newline && !src.getSourceById(i).findWord( term ).isEmpty()) {
                             output += "\n      " ;
-                            newline += 35  ;
+                            newline += 50  ;
                         }
                         output += src.getSourceById(i).findWord( term ) ;
                     }
@@ -112,7 +112,7 @@ public class GUIBooleanModel {
         panel.add( result ) ;
  
         frame.add(panel) ;
-        frame.setSize(1000, 800) ;
+        frame.setSize(1000, 1000) ;
         frame.setLocationRelativeTo(null) ;
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE) ;
         frame.setVisible(true) ;

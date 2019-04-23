@@ -71,11 +71,11 @@ public class Source {
            }
         }
         String out = "" ;
-        Integer newline = 20 ;
+        Integer newline = 35 ;
         for ( String s: output ) {
             if ( out.length() >= newline ) {
                 out += "\n      " ;
-                newline += 30 ;
+                newline += 35 ;
             }
             out += s ;
         }
